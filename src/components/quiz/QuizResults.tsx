@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, RotateCcw, CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Category, Difficulty } from "@/pages/Index";
+import { generateFeedback as generateFeedbackAI } from "@/integrations/ai/gemini";
 
 interface Question {
   question: string;
@@ -37,28 +37,20 @@ const QuizResults = ({
   const score = Math.round((correctCount / questions.length) * 100);
 
   useEffect(() => {
-    generateFeedback();
+    loadFeedback();
   }, []);
 
-  const generateFeedback = async () => {
+  const loadFeedback = async () => {
     setIsLoadingFeedback(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-quiz", {
-        body: {
-          type: "feedback",
-          score,
-          category,
-          difficulty,
-          totalQuestions: questions.length,
-          correctAnswers: correctCount,
-        },
+      const data = await generateFeedbackAI({
+        score,
+        category,
+        difficulty,
+        totalQuestions: questions.length,
+        correctAnswers: correctCount,
       });
-
-      if (error) throw error;
-
-      if (data?.feedback) {
-        setFeedback(data.feedback);
-      }
+      if (data?.feedback) setFeedback(data.feedback);
     } catch (error: any) {
       console.error("Error generating feedback:", error);
       toast.error("Failed to generate feedback");

@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Category, Difficulty } from "@/pages/Index";
 import QuizResults from "./QuizResults";
+import { generateQuiz } from "@/integrations/ai/gemini";
 
 interface Question {
   question: string;
@@ -29,6 +29,7 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showResults, setShowResults] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     generateQuestions();
@@ -36,19 +37,20 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
 
   const generateQuestions = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-quiz", {
-        body: { category, difficulty },
-      });
-
-      if (error) throw error;
-
-      if (data?.questions) {
+      const data = await generateQuiz(category, difficulty);
+      if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
         setQuestions(data.questions);
+      } else {
+        setQuestions([]);
+        setLoadError("No questions returned. Please try again.");
+        toast.error("No questions returned. Please try again.");
       }
     } catch (error: any) {
       console.error("Error generating questions:", error);
       toast.error("Failed to generate quiz questions. Please try again.");
+      setLoadError(error?.message || "Failed to generate quiz questions");
     } finally {
       setIsLoading(false);
     }
@@ -86,6 +88,18 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
         <p className="text-lg text-muted-foreground">Generating your quiz...</p>
+      </div>
+    );
+  }
+
+  if (loadError || questions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <p className="text-lg text-muted-foreground text-center">{loadError || "Unable to load questions right now."}</p>
+        <Button onClick={generateQuestions} className="bg-gradient-to-r from-primary to-secondary text-white">
+          Retry
+        </Button>
+        <Button variant="secondary" onClick={onRestart}>Back</Button>
       </div>
     );
   }
