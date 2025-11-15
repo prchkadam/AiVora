@@ -153,17 +153,46 @@ export async function generateFeedback(params: {
   totalQuestions: number;
   correctAnswers: number;
   explanation: string;
-}): Promise<{ feedback: string }> {
+}): Promise<{
+  feedback: string;
+  learnMore: {
+    title: string;
+    summary: string;
+    actionSteps: string[];
+  };
+}> {
   const { score, category, difficulty, totalQuestions, correctAnswers , explanation } = params;
 
-  const systemInstruction = `You are an AI that provides concise, encouraging feedback for quiz results. Output only JSON with a single string field 'feedback'. No extra text.`;
+  const systemInstruction = `You are an AI that provides concise, encouraging quiz feedback AND a short follow-up learning guide. Output JSON ONLY with fields 'feedback' and 'learnMore'.`;
 
-  const userInstruction = `Create a short feedback paragraph (max 120 words) for this result and return only JSON with a single field:\n\n{\n  "feedback": "..."\n}\n\nDetails:\n- Category: ${category}\n- Difficulty: ${difficulty}\n- Total Questions: ${totalQuestions}\n- Correct Answers: ${correctAnswers}\n- Score: ${score}\n- Explanation: ${explanation}`;
+  const userInstruction = `Create a short feedback paragraph (max 120 words) plus a "learnMore" follow-up plan. Return ONLY JSON in this exact shape:\n\n{\n  "feedback": "...",
+  "learnMore": {
+    "title": "...",
+    "summary": "...",
+    "actionSteps": ["...", "..."]
+  }
+}\n\nDetails:\n- Category: ${category}\n- Difficulty: ${difficulty}\n- Total Questions: ${totalQuestions}\n- Correct Answers: ${correctAnswers}\n- Score: ${score}\n- Explanation: ${explanation}\nRules:\n- actionSteps must be 2-3 concise strings with concrete practice ideas.\n- summary should be <= 60 words.`;
 
   const responseSchema = {
     type: 'object',
-    properties: { feedback: { type: 'string' } },
-    required: ['feedback'],
+    properties: {
+      feedback: { type: 'string' },
+      learnMore: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          summary: { type: 'string' },
+          actionSteps: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 2,
+            maxItems: 3,
+          },
+        },
+        required: ['title', 'summary', 'actionSteps'],
+      },
+    },
+    required: ['feedback', 'learnMore'],
   } as const;
 
   const contents = [
@@ -181,7 +210,23 @@ export async function generateFeedback(params: {
   });
 
   const parsed = safelyParseJsonFromResponse(resp);
-  if (!parsed || typeof parsed.feedback !== 'string') throw new Error('Invalid feedback format');
+  if (
+    !parsed ||
+    typeof parsed.feedback !== 'string' ||
+    !parsed.learnMore ||
+    typeof parsed.learnMore.title !== 'string' ||
+    typeof parsed.learnMore.summary !== 'string' ||
+    !Array.isArray(parsed.learnMore.actionSteps)
+  ) {
+    throw new Error('Invalid feedback format');
+  }
 
-  return { feedback: parsed.feedback };
+  return {
+    feedback: parsed.feedback,
+    learnMore: {
+      title: parsed.learnMore.title,
+      summary: parsed.learnMore.summary,
+      actionSteps: parsed.learnMore.actionSteps.map((step: any) => String(step)).slice(0, 3),
+    },
+  };
 }
