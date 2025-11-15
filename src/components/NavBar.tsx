@@ -1,355 +1,62 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ChevronDown, Trophy, HelpCircle, LogIn, UserPlus, LogOut } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Category } from "@/pages/Index";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+} from '@/components/ui/dropdown-menu'
 
-interface NavBarProps {
-  onCategoryChange?: (category: Category) => void;
-  selectedCategory?: Category;
-}
-
-const categories: { value: Category; label: string }[] = [
-  { value: "science", label: "Science" },
-  { value: "history", label: "History" },
-  { value: "geography", label: "Geography" },
-  { value: "sports", label: "Sports" },
-  { value: "general", label: "General" },
-  { value: "technology", label: "Technology" },
-  { value: "space-astronomy", label: "Space & Astronomy" },
-  { value: "arts-creativity", label: "Arts & Creativity" },
-  { value: "logic-brain-games", label: "Logic & Brain Games" },
-  { value: "business", label: "Business" },
-  { value: "health", label: "Health" },
-  { value: "literature", label: "Literature" },
-  { value: "philosophy", label: "Philosophy" },
-  { value: "environment", label: "Environment" },
-  { value: "politics", label: "Politics" },
-  { value: "food", label: "Food & Cuisine" },
-  { value: "cinema", label: "Cinema" },
-  { value: "mythology", label: "Mythology" },
-  { value: "psychology", label: "Psychology" },
-];
-
-const leaderboardData = {
-  overall: [
-    { name: "Ava Chen", score: 986, meta: "Avg. 94% accuracy" },
-    { name: "Liam Park", score: 958, meta: "Hard • Science" },
-    { name: "Maya Patel", score: 942, meta: "Medium • Technology" },
-  ],
-  recent7: [
-    { name: "Ethan Brooks", score: 910, meta: "+45 vs last week" },
-    { name: "Sophia Reyes", score: 898, meta: "Perfect streak" },
-    { name: "Noah Bennett", score: 884, meta: "Fastest completion" },
-  ],
-  categories: [
-    { name: "Nate Rivers", category: "Science", difficulty: "Hard", score: 930 },
-    { name: "Lola Kim", category: "Arts", difficulty: "Medium", score: 912 },
-    { name: "Iris Stone", category: "Space", difficulty: "Hard", score: 905 },
-  ],
-};
-
-export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSignupOpen, setIsSignupOpen] = useState(false);
-  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [loginError, setLoginError] = useState('');
-  const { login, isAuthenticated, logout, user } = useAuth();
-  const navigate = useNavigate();
-
-  const resetLoginForm = () => {
-    setEmail('');
-    setPassword('');
-    setLoginError('');
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
-    setIsLoggingIn(true);
-    
-    try {
-      const success = await login(email, password);
-      if (success) {
-        setIsLoginOpen(false);
-        resetLoginForm();
-        navigate('/dashboard');
-      } else {
-        setLoginError('Invalid email or password. Please try again.');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setLoginError('An error occurred during login. Please try again.');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-  const renderScoreList = (
-    entries: { name: string; score?: number; meta?: string }[],
-  ) => (
-    <div className="space-y-3">
-      {entries.map((entry, index) => (
-        <div
-          key={`${entry.name}-${index}`}
-          className="flex items-center justify-between rounded-2xl border border-white/5 bg-background/50 px-4 py-3 shadow-sm"
-        >
-          <div className="flex items-center gap-3">
-            <div className="text-sm font-semibold text-muted-foreground">#{index + 1}</div>
-            <div>
-              <p className="font-semibold text-white">{entry.name}</p>
-              {entry.meta && (
-                <p className="text-xs text-muted-foreground">{entry.meta}</p>
-              )}
-            </div>
-          </div>
-          <div className="text-right">
-            {typeof entry.score !== "undefined" && (
-              <p className="text-lg font-bold text-primary">{entry.score}</p>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+export function NavBar() {
+  const { user, logout } = useAuth()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-primary to-secondary backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <a href="/">
-          <div className="flex items-center gap-2">
-            <img src="/favicon.ico" alt="AiVora logo" className="w-7 h-7" />
-            <span className="text-xl font-bold text-white">AiVora</span>
-          </div>
-        </a>
+    <header className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between px-4">
+        <div className="flex items-center gap-6">
+          <a href="/" className="flex items-center gap-2 text-xl font-bold">
+            <img src="/favicon.ico" alt="AiVora logo" className="h-7 w-7" />
+            AiVora Quiz
+          </a>
+          <nav className="hidden gap-6 text-sm font-medium md:flex">
+            <a href="/" className="hover:text-primary">
+              Home
+            </a>
+            <a href="/dashboard" className="hover:text-primary">
+              Dashboard
+            </a>
+          </nav>
+        </div>
 
-        {/* Center Nav Items */}
-        <nav className="flex items-center gap-4">
-          {/* Categories Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-1 hover:bg-background/10">
-                Categories
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="bg-background">
-              {categories.map((cat) => (
-                <DropdownMenuItem
-                  key={cat.value}
-                  onClick={() => onCategoryChange?.(cat.value)}
-                  className="hover:bg-muted/50"
-                >
-                  {cat.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Leaderboard */}
-          <Dialog open={isLeaderboardOpen} onOpenChange={setIsLeaderboardOpen}>
-            <DialogTrigger asChild>
-              <Button variant="ghost" className="gap-2 hover:bg-background/10">
-                <Trophy className="w-4 h-4" />
-                Leaderboard
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl bg-background/80 backdrop-blur border border-white/10">
-              <DialogHeader>
-                <DialogTitle>Global Leaderboards</DialogTitle>
-                <p className="text-sm text-muted-foreground">
-                  See who's leading across categories.
-                </p>
-              </DialogHeader>
-              <Tabs defaultValue="overall" className="w-full mt-4">
-                <TabsList className="flex flex-wrap gap-2 bg-background/30 p-1 rounded-xl">
-                  <TabsTrigger value="overall">Top Overall</TabsTrigger>
-                  <TabsTrigger value="recent7">Last 7 Days</TabsTrigger>
-                  <TabsTrigger value="categories">Categories</TabsTrigger>
-                </TabsList>
-                <TabsContent value="overall" className="mt-6">
-                  {renderScoreList(leaderboardData.overall)}
-                </TabsContent>
-                <TabsContent value="recent7" className="mt-6">
-                  {renderScoreList(leaderboardData.recent7)}
-                </TabsContent>
-                <TabsContent value="categories" className="mt-6 space-y-3">
-                  {leaderboardData.categories.map((entry, index) => (
-                    <div
-                      key={`${entry.name}-${entry.category}`}
-                      className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/5 bg-background/50 px-4 py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="text-sm font-semibold text-muted-foreground">#{index + 1}</div>
-                        <div>
-                          <p className="font-semibold text-white">{entry.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {entry.category} · {entry.difficulty}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-primary">{entry.score}</p>
-                        {selectedCategory && selectedCategory === entry.category.toLowerCase() && (
-                          <p className="text-xs text-emerald-400">Current pick</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </TabsContent>
-              </Tabs>
-            </DialogContent>
-          </Dialog>
-
-          {/* Contact Support */}
-          <Button variant="ghost" className="gap-2 hover:bg-background/10">
-            <HelpCircle className="w-4 h-4" />
-            Contact Support
-          </Button>
-        </nav>
-
-        {/* Right Side: Auth Buttons */}
-        <div className="flex items-center gap-2">
-          {isAuthenticated ? (
-            <>
-              <Button variant="ghost" className="gap-2 text-white hover:bg-background/10">
-                {user?.name || 'Profile'}
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="gap-2 text-white hover:bg-background/10"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
-            </>
+        <div>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={user.avatar_url ?? undefined} alt={user.username} />
+                    <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium">{user.username}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                </div>
+                <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <>
-              {/* Login Dialog */}
-              <Dialog 
-                open={isLoginOpen} 
-                onOpenChange={(open) => {
-                  if (!open) {
-                    resetLoginForm();
-                  }
-                  setIsLoginOpen(open);
-                }}
-              >
-                <DialogTrigger asChild>
-                  <Button variant="ghost" className="gap-2 text-white hover:bg-background/10">
-                    <LogIn className="w-4 h-4" />
-                    Login
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Login to AiVora</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div>
-                      <Label htmlFor="login-email">Email</Label>
-                      <Input 
-                        id="login-email" 
-                        type="email" 
-                        placeholder="you@example.com" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        autoComplete="username"
-                        className="w-full"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="login-password">Password</Label>
-                      <Input 
-                        id="login-password" 
-                        type="password" 
-                        placeholder="••••••••" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        autoComplete="current-password"
-                        className="w-full"
-                      />
-                    </div>
-                    {loginError && (
-                      <div className="text-sm text-red-500">
-                        {loginError}
-                      </div>
-                    )}
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary text-white"
-                      disabled={isLoggingIn}
-                    >
-                      {isLoggingIn ? 'Logging in...' : 'Login'}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-
-              {/* Signup Dialog */}
-              <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2 bg-gradient-to-r from-primary to-secondary text-white">
-                    <UserPlus className="w-4 h-4" />
-                    Sign Up
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Sign Up for AiVora</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="signup-name">Name</Label>
-                      <Input id="signup-name" placeholder="Your name" />
-                    </div>
-                    <div>
-                      <Label htmlFor="signup-email">Email</Label>
-                      <Input id="signup-email" type="email" placeholder="you@example.com" />
-                    </div>
-                    <div>
-                      <Label htmlFor="signup-password">Password</Label>
-                      <Input id="signup-password" type="password" placeholder="••••••••" />
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
-                      Sign Up
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </>
+            <a href="/login">
+              <Button>Login</Button>
+            </a>
           )}
         </div>
       </div>
     </header>
-  );
+  )
 }
+
+export default NavBar

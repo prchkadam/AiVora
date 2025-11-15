@@ -5,7 +5,6 @@ import { BookOpen, Brain, Trophy, Zap, Target, Users, CheckCircle, Sparkles, Sta
 import CategorySelection from "@/components/quiz/CategorySelection";
 import DifficultySelection from "@/components/quiz/DifficultySelection";
 import QuizGame from "@/components/quiz/QuizGame";
-import { NavBar } from "@/components/NavBar";
 
 export type Category =
   | "science"
@@ -93,10 +92,6 @@ const Index = () => {
         <Circle className="absolute top-1/2 right-1/4 w-12 h-12 text-primary/10" />
         <Circle className="absolute top-2/3 left-1/2 w-11 h-11 text-secondary/10" />
       </div>
-      <NavBar
-        onCategoryChange={handleNavCategoryChange}
-        selectedCategory={category ?? undefined}
-      />
       <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
         {step === "welcome" && (
           <div className="max-w-4xl mx-auto">
