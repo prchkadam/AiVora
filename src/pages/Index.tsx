@@ -284,7 +284,10 @@ const Index = () => {
         )}
 
         {step === "difficulty" && category && (
-          <DifficultySelection onSelect={handleDifficultySelect} />
+          <DifficultySelection
+            onSelect={handleDifficultySelect}
+            onBack={() => setStep("category")}
+          />
         )}
 
         {step === "count" && category && difficulty && (

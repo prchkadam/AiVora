@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { Smile, Zap, Flame } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Smile, Zap, Flame, ArrowLeft } from "lucide-react";
 import type { Difficulty } from "@/pages/Index";
 
 interface DifficultySelectionProps {
   onSelect: (difficulty: Difficulty) => void;
+  onBack?: () => void;
 }
 
 const difficulties = [
@@ -30,14 +32,29 @@ const difficulties = [
   },
 ];
 
-const DifficultySelection = ({ onSelect }: DifficultySelectionProps) => {
+const DifficultySelection = ({ onSelect, onBack }: DifficultySelectionProps) => {
   return (
-    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="text-center mb-10">
-        <h2 className="text-4xl font-bold mb-3">Select Difficulty</h2>
-        <p className="text-lg text-muted-foreground">
-          How challenging do you want the quiz to be?
-        </p>
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pt-12">
+      <div className="mb-16">
+        <div className="flex items-center justify-between mb-6">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 rounded-md"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+          )}
+          <div className="text-center flex-1">
+            <h2 className="text-4xl font-bold mb-3">Select Difficulty</h2>
+            <p className="text-lg text-muted-foreground">
+              How challenging do you want the quiz to be?
+            </p>
+          </div>
+          {/* Empty div to balance the flex layout */}
+          <div className="w-24"></div>
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-6">

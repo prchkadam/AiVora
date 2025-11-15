@@ -60,9 +60,10 @@ const QuizResults = ({
       const data = await generateFeedbackAI({
         score,
         category,
-        difficulty,
+        difficulty: difficulty as string,
         totalQuestions: questions.length,
         correctAnswers: correctCount,
+        explanation: `You scored ${correctCount} out of ${questions.length} questions correctly in the ${difficulty} ${category} quiz.`,
       });
       if (data?.feedback) setFeedback(data.feedback);
       if (data?.learnMore) setLearnMore(data.learnMore);

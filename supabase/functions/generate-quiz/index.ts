@@ -1,18 +1,68 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @deno-types="https://deno.land/x/types/deno.d.ts"
+// @ts-ignore - Deno types are available in the runtime
+/// <reference no-default-lib="true" />
+/// <reference lib="deno.ns" />
+/// <reference lib="deno.window" />
+
+// @ts-ignore - Deno types are available in the runtime
+import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
+
+// Add global Deno type
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
+// Type definitions
+interface QuizRequest {
+  category: string;
+  difficulty: string;
+  type: string;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+}
+
+interface AIResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+}
+
+// Deno types are available by default in Supabase Edge Functions
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
-serve(async (req) => {
+// @ts-ignore - This is a valid Deno.serve handler
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { category, difficulty, type, score, totalQuestions, correctAnswers } = await req.json();
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "Method not allowed" }), {
+        status: 405,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    const body = await req.json() as QuizRequest;
+    const { category, difficulty, type, score, totalQuestions, correctAnswers } = body;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -54,7 +104,7 @@ serve(async (req) => {
         throw new Error(`AI Gateway returned ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as AIResponse;
       const feedback = data.choices[0].message.content;
 
       return new Response(JSON.stringify({ feedback }), {
@@ -113,7 +163,7 @@ serve(async (req) => {
       throw new Error(`AI Gateway returned ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as AIResponse;
     let content = data.choices[0].message.content;
 
     // Clean up the response - remove markdown code blocks if present
