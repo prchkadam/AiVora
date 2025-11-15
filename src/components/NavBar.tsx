@@ -15,9 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronDown, Trophy, HelpCircle, LogIn, UserPlus } from "lucide-react";
+import { ChevronDown, Trophy, HelpCircle, LogIn, UserPlus, LogOut } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Category } from "@/pages/Index";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface NavBarProps {
   onCategoryChange?: (category: Category) => void;
@@ -68,6 +70,45 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const { login, isAuthenticated, logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const resetLoginForm = () => {
+    setEmail('');
+    setPassword('');
+    setLoginError('');
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+    
+    try {
+      const success = await login(email, password);
+      if (success) {
+        setIsLoginOpen(false);
+        resetLoginForm();
+        navigate('/dashboard');
+      } else {
+        setLoginError('Invalid email or password. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setLoginError('An error occurred during login. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   const renderScoreList = (
     entries: { name: string; score?: number; meta?: string }[],
@@ -193,67 +234,120 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
           </Button>
         </nav>
 
-        {/* Right Side: Login/Signup */}
+        {/* Right Side: Auth Buttons */}
         <div className="flex items-center gap-2">
-          {/* Login Dialog */}
-          <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
-            <DialogTrigger asChild>
+          {isAuthenticated ? (
+            <>
               <Button variant="ghost" className="gap-2 text-white hover:bg-background/10">
-                <LogIn className="w-4 h-4" />
-                Login
+                {user?.name || 'Profile'}
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Login to AiVora</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="login-email">Email</Label>
-                  <Input id="login-email" type="email" placeholder="you@example.com" />
-                </div>
-                <div>
-                  <Label htmlFor="login-password">Password</Label>
-                  <Input id="login-password" type="password" placeholder="••••••••" />
-                </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
-                  Login
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              <Button 
+                variant="ghost" 
+                className="gap-2 text-white hover:bg-background/10"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              {/* Login Dialog */}
+              <Dialog 
+                open={isLoginOpen} 
+                onOpenChange={(open) => {
+                  if (!open) {
+                    resetLoginForm();
+                  }
+                  setIsLoginOpen(open);
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="ghost" className="gap-2 text-white hover:bg-background/10">
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Login to AiVora</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                      <Label htmlFor="login-email">Email</Label>
+                      <Input 
+                        id="login-email" 
+                        type="email" 
+                        placeholder="you@example.com" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        autoComplete="username"
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="login-password">Password</Label>
+                      <Input 
+                        id="login-password" 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                        className="w-full"
+                      />
+                    </div>
+                    {loginError && (
+                      <div className="text-sm text-red-500">
+                        {loginError}
+                      </div>
+                    )}
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-primary to-secondary text-white"
+                      disabled={isLoggingIn}
+                    >
+                      {isLoggingIn ? 'Logging in...' : 'Login'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
 
-          {/* Signup Dialog */}
-          <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2 bg-gradient-to-r from-primary to-secondary text-white">
-                <UserPlus className="w-4 h-4" />
-                Sign Up
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Sign Up for AiVora</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="signup-name">Name</Label>
-                  <Input id="signup-name" placeholder="Your name" />
-                </div>
-                <div>
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="you@example.com" />
-                </div>
-                <div>
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input id="signup-password" type="password" placeholder="••••••••" />
-                </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
-                  Sign Up
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              {/* Signup Dialog */}
+              <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2 bg-gradient-to-r from-primary to-secondary text-white">
+                    <UserPlus className="w-4 h-4" />
+                    Sign Up
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Sign Up for AiVora</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="signup-name">Name</Label>
+                      <Input id="signup-name" placeholder="Your name" />
+                    </div>
+                    <div>
+                      <Label htmlFor="signup-email">Email</Label>
+                      <Input id="signup-email" type="email" placeholder="you@example.com" />
+                    </div>
+                    <div>
+                      <Label htmlFor="signup-password">Password</Label>
+                      <Input id="signup-password" type="password" placeholder="••••••••" />
+                    </div>
+                    <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
+                      Sign Up
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
         </div>
       </div>
     </header>
