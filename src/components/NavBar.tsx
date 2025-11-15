@@ -47,31 +47,11 @@ const categories: { value: Category; label: string }[] = [
 ];
 
 const leaderboardData = {
-  overall: [
-    { name: "Ava Chen", score: 986, meta: "Avg. 94% accuracy", streak: 9 },
-    { name: "Liam Park", score: 958, meta: "Hard • Science", streak: 7 },
-    { name: "Maya Patel", score: 942, meta: "Medium • Technology", streak: 6 },
-  ],
-  recent7: [
-    { name: "Ethan Brooks", score: 910, meta: "+45 vs last week", streak: 5 },
-    { name: "Sophia Reyes", score: 898, meta: "Perfect streak", streak: 7 },
-    { name: "Noah Bennett", score: 884, meta: "Fastest completion", streak: 4 },
-  ],
-  recent30: [
-    { name: "Ivy Turner", score: 970, meta: "30-day peak", streak: 12 },
-    { name: "Caleb Morris", score: 954, meta: "+80 growth", streak: 10 },
-    { name: "Zoe Hayes", score: 940, meta: "Consistent top 5", streak: 11 },
-  ],
   categories: [
     { name: "Nate Rivers", category: "Science", difficulty: "Hard", score: 930 },
     { name: "Lola Kim", category: "Arts", difficulty: "Medium", score: 912 },
     { name: "Iris Stone", category: "Space", difficulty: "Hard", score: 905 },
     { name: "Ben Carter", category: "Logic", difficulty: "Easy", score: 898 },
-  ],
-  streaks: [
-    { name: "Jackson Lee", days: 18, category: "Technology" },
-    { name: "Priya Desai", days: 15, category: "History" },
-    { name: "Oliver Watts", days: 12, category: "Sports" },
   ],
 };
 
@@ -81,7 +61,7 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   const renderScoreList = (
-    entries: { name: string; score?: number; meta?: string; streak?: number }[],
+    entries: { name: string; score?: number; meta?: string }[],
   ) => (
     <div className="space-y-3">
       {entries.map((entry, index) => (
@@ -101,9 +81,6 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
           <div className="text-right">
             {typeof entry.score !== "undefined" && (
               <p className="text-lg font-bold text-primary">{entry.score}</p>
-            )}
-            {entry.streak && (
-              <p className="text-xs text-muted-foreground">{entry.streak} day streak</p>
             )}
           </div>
         </div>
@@ -157,26 +134,13 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
               <DialogHeader>
                 <DialogTitle>Global Leaderboards</DialogTitle>
                 <p className="text-sm text-muted-foreground">
-                  See who's leading overall, recently, and across categories.
+                  See who's leading across categories.
                 </p>
               </DialogHeader>
-              <Tabs defaultValue="overall" className="w-full mt-4">
+              <Tabs defaultValue="categories" className="w-full mt-4">
                 <TabsList className="flex flex-wrap gap-2 bg-background/30 p-1 rounded-xl">
-                  <TabsTrigger value="overall">Top Overall</TabsTrigger>
-                  <TabsTrigger value="recent7">Last 7 Days</TabsTrigger>
-                  <TabsTrigger value="recent30">Last 30 Days</TabsTrigger>
                   <TabsTrigger value="categories">Categories</TabsTrigger>
-                  <TabsTrigger value="streaks">Streaks</TabsTrigger>
                 </TabsList>
-                <TabsContent value="overall" className="mt-6">
-                  {renderScoreList(leaderboardData.overall)}
-                </TabsContent>
-                <TabsContent value="recent7" className="mt-6">
-                  {renderScoreList(leaderboardData.recent7)}
-                </TabsContent>
-                <TabsContent value="recent30" className="mt-6">
-                  {renderScoreList(leaderboardData.recent30)}
-                </TabsContent>
                 <TabsContent value="categories" className="mt-6 space-y-3">
                   {leaderboardData.categories.map((entry, index) => (
                     <div
@@ -197,26 +161,6 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
                         {selectedCategory && selectedCategory === entry.category.toLowerCase() && (
                           <p className="text-xs text-emerald-400">Current pick</p>
                         )}
-                      </div>
-                    </div>
-                  ))}
-                </TabsContent>
-                <TabsContent value="streaks" className="mt-6 space-y-3">
-                  {leaderboardData.streaks.map((entry, index) => (
-                    <div
-                      key={`${entry.name}-${entry.days}`}
-                      className="flex items-center justify-between rounded-2xl border border-white/5 bg-background/50 px-4 py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="text-sm font-semibold text-muted-foreground">#{index + 1}</div>
-                        <div>
-                          <p className="font-semibold text-white">{entry.name}</p>
-                          <p className="text-xs text-muted-foreground">{entry.category}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-secondary">{entry.days} days</p>
-                        <p className="text-xs text-muted-foreground">Active streak</p>
                       </div>
                     </div>
                   ))}
