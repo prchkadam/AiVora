@@ -47,11 +47,20 @@ const categories: { value: Category; label: string }[] = [
 ];
 
 const leaderboardData = {
+  overall: [
+    { name: "Ava Chen", score: 986, meta: "Avg. 94% accuracy" },
+    { name: "Liam Park", score: 958, meta: "Hard • Science" },
+    { name: "Maya Patel", score: 942, meta: "Medium • Technology" },
+  ],
+  recent7: [
+    { name: "Ethan Brooks", score: 910, meta: "+45 vs last week" },
+    { name: "Sophia Reyes", score: 898, meta: "Perfect streak" },
+    { name: "Noah Bennett", score: 884, meta: "Fastest completion" },
+  ],
   categories: [
     { name: "Nate Rivers", category: "Science", difficulty: "Hard", score: 930 },
     { name: "Lola Kim", category: "Arts", difficulty: "Medium", score: 912 },
     { name: "Iris Stone", category: "Space", difficulty: "Hard", score: 905 },
-    { name: "Ben Carter", category: "Logic", difficulty: "Easy", score: 898 },
   ],
 };
 
@@ -137,10 +146,18 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
                   See who's leading across categories.
                 </p>
               </DialogHeader>
-              <Tabs defaultValue="categories" className="w-full mt-4">
+              <Tabs defaultValue="overall" className="w-full mt-4">
                 <TabsList className="flex flex-wrap gap-2 bg-background/30 p-1 rounded-xl">
+                  <TabsTrigger value="overall">Top Overall</TabsTrigger>
+                  <TabsTrigger value="recent7">Last 7 Days</TabsTrigger>
                   <TabsTrigger value="categories">Categories</TabsTrigger>
                 </TabsList>
+                <TabsContent value="overall" className="mt-6">
+                  {renderScoreList(leaderboardData.overall)}
+                </TabsContent>
+                <TabsContent value="recent7" className="mt-6">
+                  {renderScoreList(leaderboardData.recent7)}
+                </TabsContent>
                 <TabsContent value="categories" className="mt-6 space-y-3">
                   {leaderboardData.categories.map((entry, index) => (
                     <div
@@ -166,6 +183,40 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
                   ))}
                 </TabsContent>
               </Tabs>
+
+              <div className="mt-8 rounded-3xl border border-primary/20 bg-background/60 p-6 shadow-inner">
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs uppercase tracking-[0.2em] text-primary">Coming Alive Soon</p>
+                  <h3 className="text-2xl font-semibold text-white">Multimodal Quiz Experience</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Test knowledge with rich media prompts, speak your answers, and get AI-powered feedback instantly.
+                  </p>
+                </div>
+
+                <div className="mt-6 grid gap-6 md:grid-cols-2">
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-white">Interactive formats</p>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li>✔ Image, audio, and short video based questions</li>
+                      <li>✔ Voice-enabled responses with live speech recognition</li>
+                      <li>✔ Generative AI explanations tailored to your answer</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-white">Sample prompts</p>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li>“Identify the landmark from this image”</li>
+                      <li>“Listen to this audio clip and answer”</li>
+                      <li>“Summarize this 10s video and pick the right conclusion”</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/20 px-4 py-3 text-sm text-white">
+                  Voice-first mode lets you speak your answer, then hear a generative AI coach explain what you nailed or missed.
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
 

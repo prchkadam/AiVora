@@ -71,45 +71,100 @@ serve(async (req: Request) => {
 
     // Generate feedback instead of questions
     if (type === "feedback") {
-      const feedbackPrompt = `Generate encouraging and constructive feedback for a quiz taker who scored ${score}% (${correctAnswers} out of ${totalQuestions} questions correct) on a ${difficulty} level ${category} quiz. Keep it concise (2-3 sentences), positive, and motivating. Include specific advice for improvement if the score is below 80%.`;
-
-      const response = await fetch(
-        "https://ai.gateway.lovable.dev/v1/chat/completions",
+      try {
+        const feedbackPrompt = `Generate encouraging and constructive feedback for a quiz taker who scored ${score}% (${correctAnswers} out of ${totalQuestions} questions correct) on a ${difficulty} level ${category} quiz. Keep it concise (2-3 sentences), positive, and motivating. Include specific advice for improvement if the score is below 80%.
+        
+        Also provide a short learning plan with 2-3 action items in the following JSON format:
         {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are an encouraging quiz tutor who provides constructive feedback.",
-              },
-              {
-                role: "user",
-                content: feedbackPrompt,
-              },
-            ],
-          }),
+          "feedback": "Your feedback here",
+          "learnMore": {
+            "title": "How to improve",
+            "summary": "Brief summary of improvement areas",
+            "actionSteps": ["Step 1", "Step 2", "Step 3"]
+          }
+        }`;
+
+        const response = await fetch(
+          "https://ai.gateway.lovable.dev/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "google/gemini-2.5-flash",
+              response_format: { type: "json_object" },
+              messages: [
+                {
+                  role: "system",
+                  content: "You are an encouraging quiz tutor who provides constructive feedback. Always respond with valid JSON that includes both feedback and learning suggestions."
+                },
+                {
+                  role: "user",
+                  content: feedbackPrompt,
+                },
+              ],
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("AI Gateway error:", response.status, errorText);
+          throw new Error(`AI Gateway returned ${response.status}: ${errorText}`);
         }
-      );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("AI Gateway error:", response.status, errorText);
-        throw new Error(`AI Gateway returned ${response.status}`);
+        const data = await response.json() as AIResponse;
+        
+        // Handle different response structures
+        let feedbackContent: any;
+        if (data.choices && data.choices[0]?.message?.content) {
+          // Handle standard response format
+          const content = data.choices[0].message.content;
+          try {
+            // Try to parse if content is a JSON string
+            feedbackContent = typeof content === 'string' ? JSON.parse(content) : content;
+          } catch (e) {
+            // If not JSON, use as plain text feedback
+            feedbackContent = {
+              feedback: content,
+              learnMore: {
+                title: "Tips for Improvement",
+                summary: "Here are some general tips to help you improve:",
+                actionSteps: [
+                  "Review the questions you got wrong",
+                  `Explore more about ${category}`, 
+                  "Take the quiz again to reinforce your knowledge"
+                ]
+              }
+            };
+          }
+        } else {
+          throw new Error("Unexpected response format from AI service");
+        }
+
+        return new Response(JSON.stringify(feedbackContent), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        console.error("Error generating feedback:", error);
+        // Return a helpful fallback response
+        return new Response(JSON.stringify({
+          feedback: "Great job on completing the quiz! Keep practicing to improve your score.",
+          learnMore: {
+            title: "How to improve",
+            summary: "Here are some general tips to help you improve:",
+            actionSteps: [
+              "Review the questions you got wrong",
+              `Explore more about ${category}`,
+              "Take the quiz again to reinforce your knowledge"
+            ]
+          }
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
-
-      const data = await response.json() as AIResponse;
-      const feedback = data.choices[0].message.content;
-
-      return new Response(JSON.stringify({ feedback }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
     }
 
     // Generate quiz questions
