@@ -201,15 +201,14 @@ const Index = () => {
                   { icon: "🧠", label: "Logic Games" },
                   { icon: "💼", label: "Business" },
                   { icon: "🌍", label: "Environment" },
-                  { icon: "🍽️", label: "Food" },
+                  { icon: "🎬", label: "Cinema" },
                 ].map((topic, i) => (
                   <Card
                     key={i}
-                    className="p-4 text-center hover:shadow-md transition-all duration-300 cursor-pointer"
-                    onClick={() => setStep("category")}
+                    className="p-4 text-center hover:shadow-md transition-all hover:-translate-y-0.5"
                   >
                     <div className="text-2xl mb-2">{topic.icon}</div>
-                    <p className="text-sm font-medium">{topic.label}</p>
+                    <div className="font-medium">{topic.label}</div>
                   </Card>
                 ))}
               </div>
@@ -245,6 +244,63 @@ const Index = () => {
                   <div>
                     <h4 className="font-semibold mb-1">Personalized Feedback</h4>
                     <p className="text-sm text-muted-foreground">Get AI-generated feedback and actionable tips after each quiz.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Multimodal Quiz Experience */}
+            <div className="mt-20 p-8 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border/50">
+              <div className="max-w-4xl mx-auto">
+                <div className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary mb-4">
+                  Coming Alive Soon
+                </div>
+                <h2 className="text-3xl font-bold mb-4">Multimodal Quiz Experience</h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Test knowledge with rich media prompts, speak your answers, and get AI-powered feedback instantly.
+                </p>
+                
+                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  <div>
+                    <p className="font-semibold mb-3 text-primary flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Interactive formats
+                    </p>
+                    <ul className="space-y-2 text-muted-foreground">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Image, audio, and short video based questions</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Voice-enabled responses with live speech recognition</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Generative AI explanations tailored to your answer</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <p className="font-semibold mb-3 text-primary flex items-center">
+                      <Zap className="w-5 h-5 mr-2" />
+                      Sample prompts
+                    </p>
+                    <ul className="space-y-2 text-muted-foreground">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>"Identify the landmark from this image"</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>"Listen to this audio clip and answer"</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>"Summarize this 10s video and pick the right conclusion"</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>

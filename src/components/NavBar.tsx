@@ -118,12 +118,12 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="bg-background/50">
+            <DropdownMenuContent align="center" className="bg-background">
               {categories.map((cat) => (
                 <DropdownMenuItem
                   key={cat.value}
                   onClick={() => onCategoryChange?.(cat.value)}
-                  className="hover:bg-background/10"
+                  className="hover:bg-muted/50"
                 >
                   {cat.label}
                 </DropdownMenuItem>
@@ -183,40 +183,6 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
                   ))}
                 </TabsContent>
               </Tabs>
-
-              <div className="mt-8 rounded-3xl border border-primary/20 bg-background/60 p-6 shadow-inner">
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs uppercase tracking-[0.2em] text-primary">Coming Alive Soon</p>
-                  <h3 className="text-2xl font-semibold text-white">Multimodal Quiz Experience</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Test knowledge with rich media prompts, speak your answers, and get AI-powered feedback instantly.
-                  </p>
-                </div>
-
-                <div className="mt-6 grid gap-6 md:grid-cols-2">
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold text-white">Interactive formats</p>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>✔ Image, audio, and short video based questions</li>
-                      <li>✔ Voice-enabled responses with live speech recognition</li>
-                      <li>✔ Generative AI explanations tailored to your answer</li>
-                    </ul>
-                  </div>
-
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold text-white">Sample prompts</p>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>“Identify the landmark from this image”</li>
-                      <li>“Listen to this audio clip and answer”</li>
-                      <li>“Summarize this 10s video and pick the right conclusion”</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-6 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/20 px-4 py-3 text-sm text-white">
-                  Voice-first mode lets you speak your answer, then hear a generative AI coach explain what you nailed or missed.
-                </div>
-              </div>
             </DialogContent>
           </Dialog>
 
@@ -232,27 +198,23 @@ export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
           {/* Login Dialog */}
           <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" className="gap-2 hover:bg-background/10">
+              <Button variant="ghost" className="gap-2 text-white hover:bg-background/10">
                 <LogIn className="w-4 h-4" />
                 Login
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-background/50">
+            <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Login to AiVora</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="login-email" className="text-white">
-                    Email
-                  </Label>
-                  <Input id="login-email" type="email" placeholder="you@example.com" className="bg-background/10" />
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input id="login-email" type="email" placeholder="you@example.com" />
                 </div>
                 <div>
-                  <Label htmlFor="login-password" className="text-white">
-                    Password
-                  </Label>
-                  <Input id="login-password" type="password" placeholder="••••••••" className="bg-background/10" />
+                  <Label htmlFor="login-password">Password</Label>
+                  <Input id="login-password" type="password" placeholder="••••••••" />
                 </div>
                 <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
                   Login
