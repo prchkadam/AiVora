@@ -151,12 +151,13 @@ export async function generateFeedback(params: {
   difficulty: string;
   totalQuestions: number;
   correctAnswers: number;
+  explanation: string;
 }): Promise<{ feedback: string }> {
-  const { score, category, difficulty, totalQuestions, correctAnswers } = params;
+  const { score, category, difficulty, totalQuestions, correctAnswers , explanation } = params;
 
   const systemInstruction = `You are an AI that provides concise, encouraging feedback for quiz results. Output only JSON with a single string field 'feedback'. No extra text.`;
 
-  const userInstruction = `Create a short feedback paragraph (max 120 words) for this result and return only JSON with a single field:\n\n{\n  "feedback": "..."\n}\n\nDetails:\n- Category: ${category}\n- Difficulty: ${difficulty}\n- Total Questions: ${totalQuestions}\n- Correct Answers: ${correctAnswers}\n- Score: ${score}`;
+  const userInstruction = `Create a short feedback paragraph (max 120 words) for this result and return only JSON with a single field:\n\n{\n  "feedback": "..."\n}\n\nDetails:\n- Category: ${category}\n- Difficulty: ${difficulty}\n- Total Questions: ${totalQuestions}\n- Correct Answers: ${correctAnswers}\n- Score: ${score}\n- Explanation: ${explanation}`;
 
   const responseSchema = {
     type: 'object',

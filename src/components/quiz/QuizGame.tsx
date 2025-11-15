@@ -33,6 +33,7 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
 
   useEffect(() => {
     generateQuestions();
+    
   }, [category, difficulty]);
 
   const generateQuestions = async () => {
@@ -118,6 +119,8 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+  console.log(questions)
 
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
