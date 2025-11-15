@@ -30,7 +30,7 @@ function makeSystemInstruction(): string {
     `You are an AI that generates high-quality multiple-choice quiz questions.\n` +
     `Output must conform to the provided JSON schema (application/json).\n` +
     `Rules:\n` +
-    `- Do NOT include explanations.\n` +
+    `- Include a concise explanation for why the correct answer is correct.\n` +
     `- Do NOT include any text outside the JSON array.\n` +
     `- Options must be diverse and not repetitive.\n` +
     `- The answer must always exist in the options.\n` +
@@ -96,7 +96,7 @@ export async function generateQuiz(category: string, difficulty: string, count =
 
   const userInstruction = `Generate ${count} MCQ questions about ${category} at ${difficulty} difficulty level.\n` +
     `Return only a JSON array of objects in this exact shape:\n\n` +
-    `[{\n  "question": "",\n  "options": ["", "", "", ""],\n  "answer": ""\n}]`;
+    `[{\n  "question": "",\n  "options": ["", "", "", ""],\n  "answer": "",\n  "explanation": ""\n}]`;
 
   const responseSchema = {
     type: 'array',
@@ -106,8 +106,9 @@ export async function generateQuiz(category: string, difficulty: string, count =
         question: { type: 'string' },
         options: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4 },
         answer: { type: 'string' },
+        explanation: { type: 'string' },
       },
-      required: ['question', 'options', 'answer'],
+      required: ['question', 'options', 'answer', 'explanation'],
     },
     minItems: count,
     maxItems: count,
@@ -135,7 +136,7 @@ export async function generateQuiz(category: string, difficulty: string, count =
     question: String(q?.question ?? ''),
     options: Array.isArray(q?.options) ? q.options.map((o: any) => String(o)) : [],
     correctAnswer: String(q?.answer ?? ''),
-    explanation: '',
+    explanation: String(q?.explanation ?? ''),
   }));
 
   if (questions.some(q => !q.question || q.options.length !== 4 || !q.correctAnswer || !q.options.includes(q.correctAnswer))) {

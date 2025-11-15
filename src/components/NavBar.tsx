@@ -1,0 +1,168 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ChevronDown, Trophy, HelpCircle, LogIn, UserPlus } from "lucide-react";
+import type { Category } from "@/pages/Index";
+
+interface NavBarProps {
+  onCategoryChange?: (category: Category) => void;
+  selectedCategory?: Category;
+}
+
+const categories: { value: Category; label: string }[] = [
+  { value: "science", label: "Science" },
+  { value: "history", label: "History" },
+  { value: "geography", label: "Geography" },
+  { value: "sports", label: "Sports" },
+  { value: "general", label: "General" },
+  { value: "technology", label: "Technology" },
+  { value: "space-astronomy", label: "Space & Astronomy" },
+  { value: "arts-creativity", label: "Arts & Creativity" },
+  { value: "logic-brain-games", label: "Logic & Brain Games" },
+  { value: "business", label: "Business" },
+  { value: "health", label: "Health" },
+  { value: "literature", label: "Literature" },
+  { value: "philosophy", label: "Philosophy" },
+  { value: "environment", label: "Environment" },
+  { value: "politics", label: "Politics" },
+  { value: "food", label: "Food & Cuisine" },
+  { value: "cinema", label: "Cinema" },
+  { value: "mythology", label: "Mythology" },
+  { value: "psychology", label: "Psychology" },
+];
+
+export function NavBar({ onCategoryChange, selectedCategory }: NavBarProps) {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-primary to-secondary backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo */}
+        <a href="/">
+          <div className="flex items-center gap-2">
+            <img src="/favicon.ico" alt="AiVora logo" className="w-7 h-7" />
+            <span className="text-xl font-bold text-white">AiVora</span>
+          </div>
+        </a>
+
+        {/* Center Nav Items */}
+        <nav className="flex items-center gap-4">
+          {/* Categories Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="gap-1 hover:bg-background/10">
+                Categories
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="bg-background/50">
+              {categories.map((cat) => (
+                <DropdownMenuItem
+                  key={cat.value}
+                  onClick={() => onCategoryChange?.(cat.value)}
+                  className="hover:bg-background/10"
+                >
+                  {cat.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Leaderboard */}
+          <Button variant="ghost" className="gap-2 hover:bg-background/10">
+            <Trophy className="w-4 h-4" />
+            Leaderboard
+          </Button>
+
+          {/* Contact Support */}
+          <Button variant="ghost" className="gap-2 hover:bg-background/10">
+            <HelpCircle className="w-4 h-4" />
+            Contact Support
+          </Button>
+        </nav>
+
+        {/* Right Side: Login/Signup */}
+        <div className="flex items-center gap-2">
+          {/* Login Dialog */}
+          <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" className="gap-2 hover:bg-background/10">
+                <LogIn className="w-4 h-4" />
+                Login
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md bg-background/50">
+              <DialogHeader>
+                <DialogTitle>Login to AiVora</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="login-email" className="text-white">
+                    Email
+                  </Label>
+                  <Input id="login-email" type="email" placeholder="you@example.com" className="bg-background/10" />
+                </div>
+                <div>
+                  <Label htmlFor="login-password" className="text-white">
+                    Password
+                  </Label>
+                  <Input id="login-password" type="password" placeholder="••••••••" className="bg-background/10" />
+                </div>
+                <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
+                  Login
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Signup Dialog */}
+          <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2 bg-gradient-to-r from-primary to-secondary text-white">
+                <UserPlus className="w-4 h-4" />
+                Sign Up
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Sign Up for AiVora</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="signup-name">Name</Label>
+                  <Input id="signup-name" placeholder="Your name" />
+                </div>
+                <div>
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input id="signup-email" type="email" placeholder="you@example.com" />
+                </div>
+                <div>
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input id="signup-password" type="password" placeholder="••••••••" />
+                </div>
+                <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white">
+                  Sign Up
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+    </header>
+  );
+}

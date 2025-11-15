@@ -18,10 +18,11 @@ interface Question {
 interface QuizGameProps {
   category: Category;
   difficulty: Difficulty;
+  questionCount?: number;
   onRestart: () => void;
 }
 
-const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
+const QuizGame = ({ category, difficulty, questionCount = 8, onRestart }: QuizGameProps) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -29,6 +30,7 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showResults, setShowResults] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const data = await generateQuiz(category, difficulty);
+      const data = await generateQuiz(category, difficulty, questionCount);
       if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
         setQuestions(data.questions);
       } else {
@@ -76,19 +78,24 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedAnswer) {
       toast.error("Please select an answer");
       return;
     }
+    setIsSubmitting(true);
+    // Simulate a brief loading feel; remove if you add real async validation
+    await new Promise((r) => setTimeout(r, 400));
     setIsAnswered(true);
+    setIsSubmitting(false);
   };
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <p className="text-lg text-muted-foreground">Generating your quiz...</p>
+        <p className="text-sm text-muted-foreground">This may take a few seconds</p>
       </div>
     );
   }
@@ -180,10 +187,17 @@ const QuizGame = ({ category, difficulty, onRestart }: QuizGameProps) => {
           {!isAnswered ? (
             <Button
               onClick={handleSubmit}
-              disabled={!selectedAnswer}
+              disabled={!selectedAnswer || isSubmitting}
               className="bg-gradient-to-r from-primary to-secondary text-white"
             >
-              Submit Answer
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Answer"
+              )}
             </Button>
           ) : (
             <Button
